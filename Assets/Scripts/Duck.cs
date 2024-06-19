@@ -59,6 +59,7 @@ public class Duck : MonoBehaviour
         agent.speed = constantSpeed;
         lastDirection = UnityEngine.Random.insideUnitSphere.normalized;
         isMale = UnityEngine.Random.Range(0, 2) == 0;
+        AnimalManager.Instance?.AddDuck();
     }
 
     void Update()
@@ -272,5 +273,9 @@ public class Duck : MonoBehaviour
     private void delete()
     {
         Destroy(gameObject);
+    }
+    private void OnDestroy()
+    {
+        AnimalManager.Instance?.RemoveDuck();
     }
 }
