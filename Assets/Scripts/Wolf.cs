@@ -53,6 +53,7 @@ public class Wolf : MonoBehaviour
         agent.speed = constantSpeed;
         lastDirection = UnityEngine.Random.insideUnitSphere.normalized;
         isMale = UnityEngine.Random.Range(0, 2) == 0;
+        AnimalManager.Instance?.AddWolf();        
 
         AssignPackMate();
     }
@@ -282,7 +283,11 @@ public class Wolf : MonoBehaviour
             }
         }
     }
-}
+    
+    private void OnDestroy()
+    {
+        AnimalManager.Instance?.RemoveWolf();
+    }}
 
 
 

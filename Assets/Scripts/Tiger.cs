@@ -65,6 +65,7 @@ public class Tiger : MonoBehaviour
         agent.speed = constantSpeed;
         lastDirection = UnityEngine.Random.insideUnitSphere.normalized;
         isMale = UnityEngine.Random.Range(0, 2) == 0;
+        AnimalManager.Instance?.AddTiger();
     }
 
     void Update()
@@ -281,5 +282,10 @@ public class Tiger : MonoBehaviour
     private void delete()
     {
         Destroy(gameObject);
+    }
+    
+    private void OnDestroy()
+    {
+        AnimalManager.Instance?.RemoveTiger();
     }
 }
