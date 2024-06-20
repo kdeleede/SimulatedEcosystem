@@ -75,3 +75,5 @@ crashlytics-build.properties
 # Data generated 
 *.csv
 *.csv.meta
+
+.DS_Store

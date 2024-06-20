@@ -57,9 +57,9 @@ public static class HelperFunctions
         }
     }
 
-    public static void LookingForObject(Transform transform, ref NavMeshAgent agent, string mask, float moveDistance, float destinationThreshold, ref Vector3 lastDirection, bool isMating = false, bool lookingForMale = false)
+    public static void LookingForObject(Transform transform, ref NavMeshAgent agent, string mask, float sensoryDistance, float moveDistance, float destinationThreshold, ref Vector3 lastDirection, bool isMating = false, bool lookingForMale = false)
     {
-        float checkRadius = 5.0f; // Radius for the overlap check
+        float checkRadius = sensoryDistance; // Radius for the overlap check
         Collider[] colliders = Physics.OverlapSphere(transform.position, checkRadius, LayerMask.GetMask(mask));
         if(isMating)
         {

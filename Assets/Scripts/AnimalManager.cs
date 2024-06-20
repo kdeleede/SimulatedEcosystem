@@ -13,9 +13,31 @@ public class AnimalManager : MonoBehaviour
     private List<int> duckCountLog = new List<int>();
     private List<int> wolfCountLog = new List<int>();
     private List<int> tigerCountLog = new List<int>();
+
+    private float duckSpeedTotal = 0;    
+    private float wolfSpeedTotal = 0;
+    private float tigerSpeedTotal = 0;
+    private List<float> duckSpeedLog = new List<float>();
+    private List<float> wolfSpeedLog = new List<float>();
+    private List<float> tigerSpeedLog = new List<float>();
+
+    private float duckSensoryDistTotal = 0;    
+    private float wolfSensoryDistTotal = 0;
+    private float tigerSensoryDistTotal = 0;
+    private List<float> duckSensoryLog = new List<float>();
+    private List<float> wolfSensoryLog = new List<float>();
+    private List<float> tigerSensoryLog = new List<float>();
+
+    private float duckReproductiveRateTotal = 0;    
+    private float wolfReproductiveRateTotal = 0;
+    private float tigerReproductiveRateTotal = 0;
+    private List<float> duckReproductiveRateLog = new List<float>();
+    private List<float> wolfReproductiveRateLog = new List<float>();
+    private List<float> tigerReproductiveRateLog = new List<float>();
+
     private List<float> timeLog = new List<float>();
 
-    private float logInterval = 1.0f; // Log every second
+    private float logInterval = 1.0f; // Log every 5 second
     private float nextLogTime = 0f;
 
     private void Awake()
@@ -45,9 +67,19 @@ public class AnimalManager : MonoBehaviour
         duckCountLog.Add(duckCount);
         wolfCountLog.Add(wolfCount);
         tigerCountLog.Add(tigerCount);
+
+        duckSpeedLog.Add(duckSpeedTotal);
+        wolfSpeedLog.Add(wolfSpeedTotal);
+        tigerSpeedLog.Add(tigerSpeedTotal);
+
+        duckReproductiveRateLog.Add(duckReproductiveRateTotal);
+        duckSensoryLog.Add(duckSensoryDistTotal);
         timeLog.Add(Time.time);
     }
-
+    
+    // ############### //
+    // #### DUCKS #### //
+    // ############### //
     public void AddDuck()
     {
         duckCount++;
@@ -60,6 +92,30 @@ public class AnimalManager : MonoBehaviour
         Debug.Log("Duck removed. Current count: " + duckCount);
     }
 
+    public void AddDuckGenetics(float constantSpeed, float sensoryDistance, float reproductiveUrgeRate) 
+    {
+        duckSpeedTotal += constantSpeed;
+        duckSensoryDistTotal += sensoryDistance;
+        duckReproductiveRateTotal += reproductiveUrgeRate;
+        Debug.Log("Duck total speed = " + duckSpeedTotal);
+        Debug.Log("Duck sensory total = " + duckSensoryDistTotal);
+        Debug.Log("Duck reproductive total = " + duckReproductiveRateTotal);
+    }  
+
+    public void RemoveDuckGenetics(float constantSpeed, float sensoryDistance, float reproductiveUrgeRate)
+    {
+        duckSpeedTotal -= constantSpeed;
+        duckSensoryDistTotal -= sensoryDistance;
+        duckReproductiveRateTotal -= reproductiveUrgeRate;
+        Debug.Log("Duck total speed = " + duckSpeedTotal);
+    }
+
+
+
+
+    // ############### //
+    // #### Wolves ### //
+    // ############### //
     public void AddWolf()
     {
         wolfCount++;
@@ -72,6 +128,22 @@ public class AnimalManager : MonoBehaviour
         Debug.Log("Wolf removed. Current count: " + wolfCount);
     }
 
+    public void AddWolfSpeed(float speed)
+    {
+        wolfSpeedTotal += speed;
+        Debug.Log("Duck total speed = " + wolfSpeedTotal);
+    }
+
+    public void RemoveWolfSpeed(float speed)
+    {
+        wolfSpeedTotal -= speed;
+        Debug.Log("Wolf total speed = " + wolfSpeedTotal);
+    }
+
+
+    // ############### //
+    // #### Tigers ### //
+    // ############### //
     public void AddTiger()
     {
         tigerCount++;
@@ -83,6 +155,20 @@ public class AnimalManager : MonoBehaviour
         tigerCount--;
         Debug.Log("Tiger removed. Current count: " + tigerCount);
     }
+
+    public void AddTigerSpeed(float speed)
+    {
+        tigerSpeedTotal += speed;
+        Debug.Log("Tiger total speed = " + tigerSpeedTotal);
+    }
+
+    public void RemoveTigerSpeed(float speed)
+    {
+        tigerSpeedTotal -= speed;
+        Debug.Log("Tiger total speed = " + tigerSpeedTotal);
+    }
+
+
 
     public int GetDuckCount()
     {
@@ -119,14 +205,36 @@ public class AnimalManager : MonoBehaviour
         return timeLog;
     }
 
-    public void SaveLogToFile(string filePath)
+    public void SaveLogToFile(string filePath, bool ifDuck, bool ifWolf, bool ifTiger)
     {
         using (StreamWriter writer = new StreamWriter(filePath))
-        {
-            writer.WriteLine("Time,DuckCount,WolfCount,TigerCount");
+        {   
+            string columnNames = "Time";
+            if (ifDuck) {
+                columnNames = columnNames + ",DuckCount,DuckSpeed,DuckReproductiveRate,DuckSensoryDist";
+            } 
+            if (ifWolf) {
+                columnNames = columnNames + ",WolfCount,WolfSpeed";
+            }
+            if (ifTiger) {
+                columnNames = columnNames + ",TigerCount,TigerSpeed";
+            }
+            writer.WriteLine(columnNames);
+            
             for (int i = 0; i < timeLog.Count; i++)
-            {
-                writer.WriteLine($"{timeLog[i]},{duckCountLog[i]},{wolfCountLog[i]},{tigerCountLog[i]}");
+            {   
+                string entry = $"{timeLog[i]}";
+                if (ifDuck) {
+                    entry = entry + $",{duckCountLog[i]},{duckSpeedLog[i]},{duckReproductiveRateLog[i]},{duckSensoryLog[i]}";
+                }
+                if (ifWolf) {
+                    entry = entry + $",{wolfCountLog[i]},{wolfSpeedLog[i]}";
+                }
+                if (ifTiger) {
+                    entry = entry + $",{tigerCountLog[i]},{tigerSpeedLog[i]}";
+                }
+                Debug.Log("En = " + entry);
+                writer.WriteLine(entry);
             }
         }
         Debug.Log("Log saved to " + filePath);
@@ -134,6 +242,9 @@ public class AnimalManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        SaveLogToFile(Application.dataPath + "/animal_count_log.csv");
+        bool ifDuck = duckCount > 0;
+        bool ifWolf = wolfCount > 0;
+        bool ifTiger = tigerCount > 0;
+        SaveLogToFile(Application.dataPath + "/animal_count_log.csv", ifDuck, ifWolf, ifTiger);
     }
 }
