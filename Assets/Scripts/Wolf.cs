@@ -22,9 +22,9 @@ public class Wolf : MonoBehaviour
     private float hunger;
     private float thirst;
     private float reproductiveUrge;
-    float timeToDeathByHunger = 200f;
-    float timeToDeathByThirst = 200f;
-    float maxUrgeValue = 200f;
+    private float timeToDeathByHunger = 60f;
+    private float timeToDeathByThirst = 60f;
+    private float maxUrgeValue = 60f;
 
     private Animator animator;
     private bool isMakingDecision = false;
@@ -42,6 +42,7 @@ public class Wolf : MonoBehaviour
     public float thirstRate = 1;
     public float reproductiveUrgeRate = 1;
 
+    public float sensoryDistance = 5;
     //pack behavior
     private Wolf packMate;
     private bool isPackLeader = false;
@@ -54,6 +55,7 @@ public class Wolf : MonoBehaviour
         lastDirection = UnityEngine.Random.insideUnitSphere.normalized;
         isMale = UnityEngine.Random.Range(0, 2) == 0;
         AnimalManager.Instance?.AddWolf();        
+        AnimalManager.Instance?.AddWolfSpeed(constantSpeed);    
 
         AssignPackMate();
     }
@@ -121,7 +123,7 @@ public class Wolf : MonoBehaviour
                     }
                     else
                     {
-                        HelperFunctions.LookingForObject(transform, ref agent, "Wolf", moveDistance, destinationThreshold, ref lastDirection, true, false);
+                        HelperFunctions.LookingForObject(transform, ref agent, "Wolf", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection, true, false);
                     }
                 }
                 else
@@ -132,7 +134,14 @@ public class Wolf : MonoBehaviour
                     }
                     else
                     {
-                        HelperFunctions.LookingForObject(transform, ref agent, "Wolf", moveDistance, destinationThreshold, ref lastDirection, true, true);
+                        if (HelperFunctions.CheckIsNearObject(transform, "Wolf", sensoryDistance, true, false))
+                        {
+
+                        }
+                        else
+                        {
+                            HelperFunctions.Exploring(transform, ref agent, ref lastDirection, moveDistance);
+                        }
                     }
                 }
             }
@@ -145,7 +154,7 @@ public class Wolf : MonoBehaviour
         {
             if (!isNearDuck)
             {
-                HelperFunctions.LookingForObject(transform, ref agent, "Duck", moveDistance, destinationThreshold, ref lastDirection);
+                HelperFunctions.LookingForObject(transform, ref agent, "Duck", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection);
             }
             else
             {
@@ -156,7 +165,7 @@ public class Wolf : MonoBehaviour
         {
             if (!isNearWater)
             {
-                HelperFunctions.LookingForObject(transform, ref agent, "Water", moveDistance, destinationThreshold, ref lastDirection);
+                HelperFunctions.LookingForObject(transform, ref agent, "Water", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection);
             }
             else
             {
@@ -286,6 +295,7 @@ public class Wolf : MonoBehaviour
     
     private void OnDestroy()
     {
+        AnimalManager.Instance?.RemoveWolfSpeed(constantSpeed);            
         AnimalManager.Instance?.RemoveWolf();
     }}
 

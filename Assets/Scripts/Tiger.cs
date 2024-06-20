@@ -53,6 +53,7 @@ public class Tiger : MonoBehaviour
     public float thirstRate = 1.5f;
 
     public float reproductiveUrgeRate = 1;
+    public float sensoryDistance = 5;
     
     public string currentTarget = "";
     public float targetTrackingTime = 15f; // Time to track the current target
@@ -66,6 +67,7 @@ public class Tiger : MonoBehaviour
         lastDirection = UnityEngine.Random.insideUnitSphere.normalized;
         isMale = UnityEngine.Random.Range(0, 2) == 0;
         AnimalManager.Instance?.AddTiger();
+        AnimalManager.Instance?.AddTigerSpeed(constantSpeed);    
     }
 
     void Update()
@@ -127,7 +129,7 @@ public class Tiger : MonoBehaviour
                     }
                     else
                     {
-                        HelperFunctions.LookingForObject(transform, ref agent, "Tiger", moveDistance, destinationThreshold, ref lastDirection, true, false);
+                        HelperFunctions.LookingForObject(transform, ref agent, "Tiger", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection, true, false);
                     }
                 }
                 else
@@ -138,7 +140,7 @@ public class Tiger : MonoBehaviour
                     }
                     else
                     {
-                        HelperFunctions.LookingForObject(transform, ref agent, "Tiger", moveDistance, destinationThreshold, ref lastDirection, true, true);
+                        HelperFunctions.LookingForObject(transform, ref agent, "Tiger", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection, true, true);
                     }
                 }
             }
@@ -154,7 +156,7 @@ public class Tiger : MonoBehaviour
             {
                 if (!isNearWolf)
                 {
-                    HelperFunctions.LookingForObject(transform, ref agent, "Wolf", moveDistance, destinationThreshold, ref lastDirection);
+                    HelperFunctions.LookingForObject(transform, ref agent, "Wolf", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection);
                 }
                 else
                 {
@@ -165,7 +167,7 @@ public class Tiger : MonoBehaviour
             {
                 if (!isNearDuck)
                 {
-                    HelperFunctions.LookingForObject(transform, ref agent, "Duck", moveDistance, destinationThreshold, ref lastDirection);
+                    HelperFunctions.LookingForObject(transform, ref agent, "Duck", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection);
                 }
                 else
                 {
@@ -178,7 +180,7 @@ public class Tiger : MonoBehaviour
         {
             if(!isNearWater)
             {
-                HelperFunctions.LookingForObject(transform, ref agent, "Water", moveDistance, destinationThreshold, ref lastDirection);
+                HelperFunctions.LookingForObject(transform, ref agent, "Water", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection);
             }
             else
             {
@@ -286,6 +288,7 @@ public class Tiger : MonoBehaviour
     
     private void OnDestroy()
     {
+        AnimalManager.Instance?.RemoveTigerSpeed(constantSpeed);            
         AnimalManager.Instance?.RemoveTiger();
     }
 }

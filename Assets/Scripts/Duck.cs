@@ -23,15 +23,15 @@ public class Duck : MonoBehaviour
     private float thirst;
 
     private float reproductiveUrge;
-    private float timeToDeathByHunger = 200f;
-    private float timeToDeathByThirst = 200f;
+    private float timeToDeathByHunger = 60f;
+    private float timeToDeathByThirst = 60f;
 
-    private float maxUrgeValue = 200f;
+    private float maxUrgeValue = 60f;
 
     private Animator animator;
     private bool isMakingDecision = false;
 
-    private float timeToDrink = 2f;
+    private float timeToDrink = 1f;
 
     [Header("Reproduction")]
 
@@ -51,6 +51,8 @@ public class Duck : MonoBehaviour
 
     public float reproductiveUrgeRate = 1;
 
+    public float sensoryDistance = 5;
+
 
     void Start()
     {
@@ -59,7 +61,8 @@ public class Duck : MonoBehaviour
         agent.speed = constantSpeed;
         lastDirection = UnityEngine.Random.insideUnitSphere.normalized;
         isMale = UnityEngine.Random.Range(0, 2) == 0;
-        AnimalManager.Instance?.AddDuck();        
+        AnimalManager.Instance?.AddDuck();    
+        AnimalManager.Instance?.AddDuckGenetics(constantSpeed, sensoryDistance, reproductiveUrgeRate);    
     }
 
     void Update()
@@ -112,7 +115,31 @@ public class Duck : MonoBehaviour
         {
             RunAwayFromWolves();
         }
-        else if(reproductiveUrge >= hunger && reproductiveUrge >= thirst)
+        else if(hunger >= thirst && hunger > .4f)
+        {
+            if (!isNearPlant)
+            {
+                HelperFunctions.LookingForObject(transform, ref agent, "Plant", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection);
+            }
+            else
+            {
+                yield return new WaitForSeconds(timeToDrink);
+                EatPlant();
+            }
+        }
+        else if(thirst > hunger && thirst > .4f)
+        {
+            if(!isNearWater)
+            {
+                HelperFunctions.LookingForObject(transform, ref agent, "Water", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection);
+            }
+            else
+            {
+                yield return new WaitForSeconds(timeToDrink);
+                DrinkWater();
+            }
+        }
+        else if(reproductiveUrge > .5f)
         {
             if(isReadyToMate)
             {
@@ -124,7 +151,7 @@ public class Duck : MonoBehaviour
                     }
                     else
                     {
-                        HelperFunctions.LookingForObject(transform, ref agent, "Duck", moveDistance, destinationThreshold, ref lastDirection, true, false);
+                        HelperFunctions.LookingForObject(transform, ref agent, "Duck", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection, true, false);
                     }
                 }
                 else
@@ -135,7 +162,14 @@ public class Duck : MonoBehaviour
                     }
                     else
                     {
-                        HelperFunctions.LookingForObject(transform, ref agent, "Duck", moveDistance, destinationThreshold, ref lastDirection, true, true);
+                        if (HelperFunctions.CheckIsNearObject(transform, "Duck", sensoryDistance, true, true))
+                        {
+                            
+                        }
+                        else
+                        {
+                            HelperFunctions.Exploring(transform, ref agent, ref lastDirection, moveDistance);
+                        }
                     }
                 }
             }
@@ -144,30 +178,7 @@ public class Duck : MonoBehaviour
                 HelperFunctions.Exploring(transform, ref agent, ref lastDirection, moveDistance);
             }
         }
-        else if(hunger > thirst && hunger > .3f)
-        {
-            if (!isNearPlant)
-            {
-                HelperFunctions.LookingForObject(transform, ref agent, "Plant", moveDistance, destinationThreshold, ref lastDirection);
-            }
-            else
-            {
-                yield return new WaitForSeconds(timeToDrink);
-                EatPlant();
-            }
-        }
-        else if(thirst >= hunger && thirst > .3f)
-        {
-            if(!isNearWater)
-            {
-                HelperFunctions.LookingForObject(transform, ref agent, "Water", moveDistance, destinationThreshold, ref lastDirection);
-            }
-            else
-            {
-                yield return new WaitForSeconds(timeToDrink);
-                DrinkWater();
-            }
-        }
+        
         else
         {
             HelperFunctions.Exploring(transform, ref agent, ref lastDirection, moveDistance);
@@ -193,7 +204,7 @@ public class Duck : MonoBehaviour
 
         GameObject babyDuck = Instantiate(duckPrefab, transform.position, Quaternion.identity);
         babyDuck.GetComponent<Duck>().InheritGenes(father, this);
-        babyDuck.transform.parent = father.transform.parent;
+        babyDuck.transform.parent = this.transform.parent;
         Mate();
     }
 
@@ -272,6 +283,18 @@ public class Duck : MonoBehaviour
 
         thirstRate = RateOfHungerThirst;
         hungerRate = RateOfHungerThirst;
+
+        float meanReproductiveUrge = (Father.reproductiveUrgeRate + Mother.reproductiveUrgeRate) / 2;
+        float reproductiveUrgeStdDev = 0.15f;
+        float sampleReproductiveUrge = HelperFunctions.SampleNormalDistribution(meanReproductiveUrge, reproductiveUrgeStdDev);
+
+        reproductiveUrgeRate = sampleReproductiveUrge;
+
+        float meanSensoryDist = (Father.sensoryDistance + Mother.sensoryDistance) / 2;
+        float sensoryDistStdDev = 0.2f;
+        float sampleSensoryDist = HelperFunctions.SampleNormalDistribution(meanSensoryDist, sensoryDistStdDev);
+
+        sensoryDistance = sampleSensoryDist;
     }
 
     private float SampleNormalDistribution(float mean, float stdDev)
@@ -297,6 +320,7 @@ public class Duck : MonoBehaviour
     
     private void OnDestroy()
     {
+        AnimalManager.Instance?.RemoveDuckGenetics(constantSpeed, sensoryDistance, reproductiveUrgeRate);    
         AnimalManager.Instance?.RemoveDuck();
     }
 }
