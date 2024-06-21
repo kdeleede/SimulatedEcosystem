@@ -37,7 +37,7 @@ public class AnimalManager : MonoBehaviour
 
     private List<float> timeLog = new List<float>();
 
-    private float logInterval = 1.0f; // Log every 5 second
+    private float logInterval = 5.0f; // Log every 5 second
     private float nextLogTime = 0f;
 
     private void Awake()
@@ -74,6 +74,13 @@ public class AnimalManager : MonoBehaviour
 
         duckReproductiveRateLog.Add(duckReproductiveRateTotal);
         duckSensoryLog.Add(duckSensoryDistTotal);
+
+        wolfReproductiveRateLog.Add(wolfReproductiveRateTotal);
+        wolfSensoryLog.Add(wolfSensoryDistTotal);  
+
+        tigerReproductiveRateLog.Add(tigerReproductiveRateTotal);
+        tigerSensoryLog.Add(tigerSensoryDistTotal);
+        
         timeLog.Add(Time.time);
     }
     
@@ -128,16 +135,22 @@ public class AnimalManager : MonoBehaviour
         Debug.Log("Wolf removed. Current count: " + wolfCount);
     }
 
-    public void AddWolfSpeed(float speed)
+    public void AddWolfGenetics(float constantSpeed, float sensoryDistance, float reproductiveUrgeRate) 
     {
-        wolfSpeedTotal += speed;
-        Debug.Log("Duck total speed = " + wolfSpeedTotal);
-    }
+        wolfSpeedTotal += constantSpeed;
+        wolfSensoryDistTotal += sensoryDistance;
+        wolfReproductiveRateTotal += reproductiveUrgeRate;
+        Debug.Log("wolf total speed = " + wolfSpeedTotal);
+        Debug.Log("wolf sensory total = " + wolfSensoryDistTotal);
+        Debug.Log("wolf reproductive total = " + wolfReproductiveRateTotal);
+    }  
 
-    public void RemoveWolfSpeed(float speed)
+    public void RemoveWolfGenetics(float constantSpeed, float sensoryDistance, float reproductiveUrgeRate)
     {
-        wolfSpeedTotal -= speed;
-        Debug.Log("Wolf total speed = " + wolfSpeedTotal);
+        wolfSpeedTotal -= constantSpeed;
+        wolfSensoryDistTotal -= sensoryDistance;
+        wolfReproductiveRateTotal -= reproductiveUrgeRate;
+        Debug.Log("wolf total speed = " + wolfSpeedTotal);
     }
 
 
@@ -156,17 +169,24 @@ public class AnimalManager : MonoBehaviour
         Debug.Log("Tiger removed. Current count: " + tigerCount);
     }
 
-    public void AddTigerSpeed(float speed)
+    public void AddTigerGenetics(float constantSpeed, float sensoryDistance, float reproductiveUrgeRate) 
     {
-        tigerSpeedTotal += speed;
-        Debug.Log("Tiger total speed = " + tigerSpeedTotal);
+        tigerSpeedTotal += constantSpeed;
+        tigerSensoryDistTotal += sensoryDistance;
+        tigerReproductiveRateTotal += reproductiveUrgeRate;
+        Debug.Log("tiger total speed = " + tigerSpeedTotal);
+        Debug.Log("tiger sensory total = " + tigerSensoryDistTotal);
+        Debug.Log("tiger reproductive total = " + tigerReproductiveRateTotal);
+    }  
+
+    public void RemoveTigerGenetics(float constantSpeed, float sensoryDistance, float reproductiveUrgeRate)
+    {
+        tigerSpeedTotal -= constantSpeed;
+        tigerSensoryDistTotal -= sensoryDistance;
+        tigerReproductiveRateTotal -= reproductiveUrgeRate;
+        Debug.Log("tiger total speed = " + tigerSpeedTotal);
     }
 
-    public void RemoveTigerSpeed(float speed)
-    {
-        tigerSpeedTotal -= speed;
-        Debug.Log("Tiger total speed = " + tigerSpeedTotal);
-    }
 
 
 
@@ -214,10 +234,10 @@ public class AnimalManager : MonoBehaviour
                 columnNames = columnNames + ",DuckCount,DuckSpeed,DuckReproductiveRate,DuckSensoryDist";
             } 
             if (ifWolf) {
-                columnNames = columnNames + ",WolfCount,WolfSpeed";
+                columnNames = columnNames + ",WolfCount,WolfSpeed,WolfReproductiveRate,WolfSensoryDist";
             }
             if (ifTiger) {
-                columnNames = columnNames + ",TigerCount,TigerSpeed";
+                columnNames = columnNames + ",TigerCount,TigerSpeed,TigerReproductiveRate,TigerSensoryDist";
             }
             writer.WriteLine(columnNames);
             
@@ -228,10 +248,10 @@ public class AnimalManager : MonoBehaviour
                     entry = entry + $",{duckCountLog[i]},{duckSpeedLog[i]},{duckReproductiveRateLog[i]},{duckSensoryLog[i]}";
                 }
                 if (ifWolf) {
-                    entry = entry + $",{wolfCountLog[i]},{wolfSpeedLog[i]}";
+                    entry = entry + $",{wolfCountLog[i]},{wolfSpeedLog[i]},{wolfReproductiveRateLog[i]},{wolfSensoryLog[i]}";
                 }
                 if (ifTiger) {
-                    entry = entry + $",{tigerCountLog[i]},{tigerSpeedLog[i]}";
+                    entry = entry + $",{tigerCountLog[i]},{tigerSpeedLog[i]},{tigerReproductiveRateLog[i]},{tigerSensoryLog[i]}";
                 }
                 Debug.Log("En = " + entry);
                 writer.WriteLine(entry);
