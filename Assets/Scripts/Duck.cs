@@ -190,7 +190,6 @@ public class Duck : MonoBehaviour
 
     void Mate()
     {
-        Debug.Log("Mated");
         isReadyToMate = false;
         isMatingCooldown = true;
         reproductiveUrge = 0;
@@ -277,7 +276,7 @@ public class Duck : MonoBehaviour
         float stdDev = 1f;
         float sampledSpeed = SampleNormalDistribution(meanSpeed, stdDev);
 
-        constantSpeed = sampledSpeed;
+        constantSpeed = Mathf.Max(sampledSpeed, .1f);
 
         float RateOfHungerThirst = DetermineThirstAndHungerRate(constantSpeed);
 
@@ -288,13 +287,14 @@ public class Duck : MonoBehaviour
         float reproductiveUrgeStdDev = 0.15f;
         float sampleReproductiveUrge = HelperFunctions.SampleNormalDistribution(meanReproductiveUrge, reproductiveUrgeStdDev);
 
-        reproductiveUrgeRate = sampleReproductiveUrge;
+
+        reproductiveUrgeRate = Mathf.Max(sampleReproductiveUrge, .1f);
 
         float meanSensoryDist = (Father.sensoryDistance + Mother.sensoryDistance) / 2;
         float sensoryDistStdDev = 0.2f;
         float sampleSensoryDist = HelperFunctions.SampleNormalDistribution(meanSensoryDist, sensoryDistStdDev);
 
-        sensoryDistance = sampleSensoryDist;
+        sensoryDistance = Mathf.Max(sampleSensoryDist, .1f);
     }
 
     private float SampleNormalDistribution(float mean, float stdDev)

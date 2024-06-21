@@ -117,40 +117,8 @@ public class Tiger : MonoBehaviour
     {
         yield return new WaitForSeconds(waitTimeBeforeMove);
 
-        if(reproductiveUrge > hunger && reproductiveUrge > thirst)
-        {
-            if(isReadyToMate)
-            {
-                if(isMale)
-                {
-                    if(HelperFunctions.CheckIsNearObject(transform, "Tiger", 1f, true, false))
-                    {
-                        Mate();
-                    }
-                    else
-                    {
-                        HelperFunctions.LookingForObject(transform, ref agent, "Tiger", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection, true, false);
-                    }
-                }
-                else
-                {
-                    if(HelperFunctions.CheckIsNearObject(transform, "Tiger", 1f, true, true))
-                    {
-                        Birth();
-                    }
-                    else
-                    {
-                        HelperFunctions.LookingForObject(transform, ref agent, "Tiger", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection, true, true);
-                    }
-                }
-            }
-            else
-            {
-                HelperFunctions.Exploring(transform, ref agent, ref lastDirection, moveDistance);
-            }
         
-        }
-        else if (targetTrackingCooldown <= 0 && hunger > thirst)
+        if (targetTrackingCooldown <= 0 && hunger >= thirst)
         {
             if(hunger > .5f)
             {
@@ -176,7 +144,7 @@ public class Tiger : MonoBehaviour
             }
             targetTrackingCooldown = targetTrackingTime;
         }
-        else if(thirst >= hunger && thirst > .3f)
+        else if(thirst > hunger && thirst > .4f)
         {
             if(!isNearWater)
             {
@@ -187,6 +155,46 @@ public class Tiger : MonoBehaviour
                 yield return new WaitForSeconds(timeToDrink);
                 DrinkWater();
             }
+        }
+        else if(reproductiveUrge > .5f)
+        {
+            if(isReadyToMate)
+            {
+                if(isMale)
+                {
+                    if(HelperFunctions.CheckIsNearObject(transform, "Tiger", 1f, true, false))
+                    {
+                        Mate();
+                    }
+                    else
+                    {
+                        HelperFunctions.LookingForObject(transform, ref agent, "Tiger", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection, true, false);
+                    }
+                }
+                else
+                {
+                    if(HelperFunctions.CheckIsNearObject(transform, "Tiger", 1f, true, true))
+                    {
+                        Birth();
+                    }
+                    else
+                    {
+                        if (HelperFunctions.CheckIsNearObject(transform, "Tiger", sensoryDistance, true, true))
+                        {
+
+                        }
+                        else
+                        {
+                            HelperFunctions.Exploring(transform, ref agent, ref lastDirection, moveDistance);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                HelperFunctions.Exploring(transform, ref agent, ref lastDirection, moveDistance);
+            }
+        
         }
         else
         {
@@ -229,7 +237,6 @@ public class Tiger : MonoBehaviour
 
     void Mate()
     {
-        Debug.Log("Mated");
         isReadyToMate = false;
         isMatingCooldown = true;
         reproductiveUrge = 0;
@@ -254,18 +261,31 @@ public class Tiger : MonoBehaviour
         float stdDev = 1f;
         float sampledSpeed = HelperFunctions.SampleNormalDistribution(meanSpeed, stdDev);
 
-        constantSpeed = sampledSpeed;
+        constantSpeed = Mathf.Max(sampledSpeed, .1f);
 
         float RateOfHungerThirst = DetermineThirstAndHungerRate(constantSpeed);
 
         thirstRate = RateOfHungerThirst;
         hungerRate = RateOfHungerThirst;
+
+        float meanReproductiveUrge = (Father.reproductiveUrgeRate + Mother.reproductiveUrgeRate) / 2;
+        float reproductiveUrgeStdDev = 0.15f;
+        float sampleReproductiveUrge = HelperFunctions.SampleNormalDistribution(meanReproductiveUrge, reproductiveUrgeStdDev);
+
+
+        reproductiveUrgeRate = Mathf.Max(sampleReproductiveUrge, .1f);
+
+        float meanSensoryDist = (Father.sensoryDistance + Mother.sensoryDistance) / 2;
+        float sensoryDistStdDev = 0.2f;
+        float sampleSensoryDist = HelperFunctions.SampleNormalDistribution(meanSensoryDist, sensoryDistStdDev);
+
+        sensoryDistance = Mathf.Max(sampleSensoryDist, .1f);
     }
 
     public static float DetermineThirstAndHungerRate(float speed)
     {
         // default speed is 3.5 if larger than 3.5 get thirstier/hungrier faster
-        return speed / 10.0f;
+        return speed / 12.0f;
     }
     
     IEnumerator MatingCooldown()

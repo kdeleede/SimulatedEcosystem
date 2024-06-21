@@ -136,10 +136,18 @@ public static class HelperFunctions
                     filteredColliders.Add(collider);
                 }
             }
-            else
+            else if(mask == "Wolf")
             {
                 Wolf wolf = collider.GetComponent<Wolf>();
                 if (wolf != null && wolf.isMale == lookingForMale && wolf.isReadyToMate == true)
+                {
+                    filteredColliders.Add(collider);
+                }
+            }
+            else
+            {
+                Tiger tiger = collider.GetComponent<Tiger>();
+                if (tiger != null && tiger.isMale == lookingForMale && tiger.isReadyToMate == true)
                 {
                     filteredColliders.Add(collider);
                 }

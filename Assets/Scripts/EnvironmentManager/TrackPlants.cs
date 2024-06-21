@@ -7,7 +7,10 @@ public class TrackPlants : MonoBehaviour
 {
     public static TrackPlants instance;
     public GameObject plantPrefab; // The prefab to spawn
-    public LayerMask groundLayer;  // Layer mask to check if the point is on the ground
+    public LayerMask groundLayer;
+
+    public LayerMask defaultLayer;
+
     public int numberOfPlants = 5;
     public float minX = -40.5f;
     public float maxX = 40.5f;
@@ -16,7 +19,6 @@ public class TrackPlants : MonoBehaviour
 
     void Start()
     {
-        SpawnPlants();
     }
 
     void Awake()
@@ -24,7 +26,7 @@ public class TrackPlants : MonoBehaviour
         instance = this;
     }
 
-    void SpawnPlants()
+    public void SpawnPlants()
     {
         for (int i = 0; i < numberOfPlants; i++)
         {
@@ -38,15 +40,27 @@ public class TrackPlants : MonoBehaviour
         {
             Vector3 spawnPosition = GetRandomPosition();
 
-            // Raycast downwards from above the point to check if it's on the ground
-            Ray ray = new Ray(spawnPosition + Vector3.up * 10, Vector3.down);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, Mathf.Infinity, groundLayer))
+            LayerMask combinedLayerMask = groundLayer | defaultLayer;
+
+            Ray ray = new Ray(spawnPosition + Vector3.up * 50, Vector3.down);
+            RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity, combinedLayerMask);
+
+            if (hits.Length > 0)
             {
-                // Adjust the spawn position to the hit point on the ground
-                spawnPosition = hit.point;
-                Instantiate(plantPrefab, spawnPosition, Quaternion.identity);
-                break;
+                System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+                var firstHit = hits[0];
+
+                if (((1 << firstHit.collider.gameObject.layer) & defaultLayer) != 0)
+                {
+                    continue;
+                }
+                else if (((1 << firstHit.collider.gameObject.layer) & groundLayer) != 0)
+                {
+                    spawnPosition = firstHit.point;
+                    Instantiate(plantPrefab, spawnPosition, Quaternion.identity);
+                    return;
+                }
             }
         }
     }

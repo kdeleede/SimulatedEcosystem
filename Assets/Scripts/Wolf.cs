@@ -6,17 +6,13 @@ public class Wolf : MonoBehaviour
 {
     public NavMeshAgent agent;
     public float destinationThreshold = 0.15f; // Distance to determine if the destination is reached
-    public float decisionInterval = 2.0f; // Interval for making movement decisions
     public float waitTimeBeforeMove = 1.0f; // Wait time before moving to the new location
     public float moveDistance = 1.0f; // Distance to move each time
     public LayerMask unwalkableLayer; // Layer mask for unwalkable areas
 
-    private bool overrideDestination = false;
-    private Vector3 newDestination;
     private Vector3 lastDirection;
     private bool isNearWater = false;
     private bool isNearDuck = false;
-    private bool foundWater = false;
 
     [Header("State")]
     private float hunger;
@@ -111,7 +107,30 @@ public class Wolf : MonoBehaviour
         {
             RunAwayFromTigers();
         }
-        else if (reproductiveUrge > hunger && reproductiveUrge > thirst)
+        else if (hunger >= thirst && hunger > .4f)
+        {
+            if (!isNearDuck)
+            {
+                HelperFunctions.LookingForObject(transform, ref agent, "Duck", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection);
+            }
+            else
+            {
+                EatDuck();
+            }
+        }
+        else if (thirst > hunger && thirst > .4f)
+        {
+            if (!isNearWater)
+            {
+                HelperFunctions.LookingForObject(transform, ref agent, "Water", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection);
+            }
+            else
+            {
+                yield return new WaitForSeconds(timeToDrink);
+                DrinkWater();
+            }
+        }
+        else if (reproductiveUrge > .5f)
         {
             if (isReadyToMate) // Wolves do not mate with their pack
             {
@@ -134,7 +153,7 @@ public class Wolf : MonoBehaviour
                     }
                     else
                     {
-                        if (HelperFunctions.CheckIsNearObject(transform, "Wolf", sensoryDistance, true, false))
+                        if (HelperFunctions.CheckIsNearObject(transform, "Wolf", sensoryDistance, true, true))
                         {
 
                         }
@@ -148,29 +167,6 @@ public class Wolf : MonoBehaviour
             else
             {
                 HelperFunctions.Exploring(transform, ref agent, ref lastDirection, moveDistance);
-            }
-        }
-        else if (hunger > thirst && hunger > .3f)
-        {
-            if (!isNearDuck)
-            {
-                HelperFunctions.LookingForObject(transform, ref agent, "Duck", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection);
-            }
-            else
-            {
-                EatDuck();
-            }
-        }
-        else if (thirst >= hunger && thirst > .3f)
-        {
-            if (!isNearWater)
-            {
-                HelperFunctions.LookingForObject(transform, ref agent, "Water", sensoryDistance, moveDistance, destinationThreshold, ref lastDirection);
-            }
-            else
-            {
-                yield return new WaitForSeconds(timeToDrink);
-                DrinkWater();
             }
         }
         else
@@ -215,7 +211,6 @@ public class Wolf : MonoBehaviour
 
     void Mate()
     {
-        Debug.Log("Mated");
         isReadyToMate = false;
         isMatingCooldown = true;
         reproductiveUrge = 0;
@@ -240,12 +235,24 @@ public class Wolf : MonoBehaviour
         float stdDev = 1f;
         float sampledSpeed = HelperFunctions.SampleNormalDistribution(meanSpeed, stdDev);
 
-        constantSpeed = sampledSpeed;
+        constantSpeed = Mathf.Max(sampledSpeed, .1f);
 
         float RateOfHungerThirst = DetermineThirstAndHungerRate(constantSpeed);
 
         thirstRate = RateOfHungerThirst;
         hungerRate = RateOfHungerThirst;
+
+        float meanReproductiveUrge = (Father.reproductiveUrgeRate + Mother.reproductiveUrgeRate) / 2;
+        float reproductiveUrgeStdDev = 0.15f;
+        float sampleReproductiveUrge = HelperFunctions.SampleNormalDistribution(meanReproductiveUrge, reproductiveUrgeStdDev);
+
+        reproductiveUrgeRate = Mathf.Max(sampleReproductiveUrge, .1f);
+
+        float meanSensoryDist = (Father.sensoryDistance + Mother.sensoryDistance) / 2;
+        float sensoryDistStdDev = 0.2f;
+        float sampleSensoryDist = HelperFunctions.SampleNormalDistribution(meanSensoryDist, sensoryDistStdDev);
+
+        sensoryDistance = Mathf.Max(sampleSensoryDist, .1f);
     }
 
     public static float DetermineThirstAndHungerRate(float speed)

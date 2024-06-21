@@ -131,19 +131,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   agent: {fileID: 0}
   destinationThreshold: 0.5
-  decisionInterval: 2
-  waitTimeBeforeMove: 1
-  moveDistance: 1
+  waitTimeBeforeMove: 0.1
+  moveDistance: 3
   unwalkableLayer:
     serializedVersion: 2
     m_Bits: 16
   isMale: 0
   isReadyToMate: 0
   wolfPrefab: {fileID: 4442917709511306895}
-  constantSpeed: 3.5
+  constantSpeed: 10
   hungerRate: 1
   thirstRate: 1
   reproductiveUrgeRate: 1
+  sensoryDistance: 5
 --- !u!65 &8970498173077553408
 BoxCollider:
   m_ObjectHideFlags: 0

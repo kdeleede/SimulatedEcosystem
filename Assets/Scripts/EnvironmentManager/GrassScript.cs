@@ -37,6 +37,7 @@ public class GrassScript : MonoBehaviour
     void Start()
     {
         SpawnTerrain();
+        TrackPlants.instance.SpawnPlants();
         navSurface.BuildNavMesh();
     }
 
