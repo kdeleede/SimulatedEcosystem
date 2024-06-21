@@ -262,9 +262,12 @@ public class AnimalManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        bool ifDuck = duckCount > 0;
-        bool ifWolf = wolfCount > 0;
-        bool ifTiger = tigerCount > 0;
-        SaveLogToFile(Application.dataPath + "/animal_count_log.csv", ifDuck, ifWolf, ifTiger);
+        // bool ifDuck = duckCount > 0;
+        // bool ifWolf = wolfCount > 0;
+        // bool ifTiger = tigerCount > 0;
+        // print(ifDuck);
+        // print(ifWolf);
+        // print(ifTiger);
+        SaveLogToFile(Application.dataPath + "/animal_count_log.csv", true, true, true);
     }
 }

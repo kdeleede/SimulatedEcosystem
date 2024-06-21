@@ -8,7 +8,7 @@ public class Tiger : MonoBehaviour
     public NavMeshAgent agent;
     public float destinationThreshold = 0.15f; // Distance to determine if the destination is reached
     public float decisionInterval = 2.0f; // Interval for making movement decisions
-    public float waitTimeBeforeMove = 1.0f; // Wait time before moving to the new location
+    public float waitTimeBeforeMove = .1f; // Wait time before moving to the new location
     public float moveDistance = 1.0f; // Distance to move each time
     public LayerMask unwalkableLayer; // Layer mask for unwalkable areas
 
@@ -26,10 +26,10 @@ public class Tiger : MonoBehaviour
     private float thirst;
 
     private float reproductiveUrge;
-    float timeToDeathByHunger = 200f;
-    float timeToDeathByThirst = 200f;
+    float timeToDeathByHunger = 100f;
+    float timeToDeathByThirst = 100f;
 
-    float maxUrgeValue = 200f;
+    float maxUrgeValue = 100f;
 
     private Animator animator;
     private bool isMakingDecision = false;
@@ -118,9 +118,9 @@ public class Tiger : MonoBehaviour
         yield return new WaitForSeconds(waitTimeBeforeMove);
 
         
-        if (targetTrackingCooldown <= 0 && hunger >= thirst)
+        if (hunger >= thirst && hunger > .3f)
         {
-            if(hunger > .5f)
+            if(hunger > .7f)
             {
                 if (!isNearWolf)
                 {
@@ -131,7 +131,7 @@ public class Tiger : MonoBehaviour
                     EatWolf();
                 }
             }
-            else if(hunger > .3f)
+            else
             {
                 if (!isNearDuck)
                 {
@@ -144,7 +144,7 @@ public class Tiger : MonoBehaviour
             }
             targetTrackingCooldown = targetTrackingTime;
         }
-        else if(thirst > hunger && thirst > .4f)
+        else if(thirst > hunger && thirst > .3f)
         {
             if(!isNearWater)
             {
@@ -156,7 +156,7 @@ public class Tiger : MonoBehaviour
                 DrinkWater();
             }
         }
-        else if(reproductiveUrge > .5f)
+        else if(reproductiveUrge > .4f)
         {
             if(isReadyToMate)
             {
@@ -225,7 +225,8 @@ public class Tiger : MonoBehaviour
 
     void EatDuck()
     {
-        hunger = hunger / 2.0f;
+        hunger -= .5f;
+        hunger = Mathf.Max(0, hunger);
         Collider collider = HelperFunctions.GetClosestObject(transform, "Duck", 1.0f);
         if (collider != null)
         {
@@ -285,7 +286,7 @@ public class Tiger : MonoBehaviour
     public static float DetermineThirstAndHungerRate(float speed)
     {
         // default speed is 3.5 if larger than 3.5 get thirstier/hungrier faster
-        return speed / 12.0f;
+        return speed / 8.0f;
     }
     
     IEnumerator MatingCooldown()

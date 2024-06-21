@@ -18,9 +18,9 @@ public class Wolf : MonoBehaviour
     private float hunger;
     private float thirst;
     private float reproductiveUrge;
-    private float timeToDeathByHunger = 120f;
-    private float timeToDeathByThirst = 120f;
-    private float maxUrgeValue = 120f;
+    private float timeToDeathByHunger = 100f;
+    private float timeToDeathByThirst = 100f;
+    private float maxUrgeValue = 100f;
 
     private Animator animator;
     private bool isMakingDecision = false;
@@ -260,7 +260,7 @@ public class Wolf : MonoBehaviour
     public static float DetermineThirstAndHungerRate(float speed)
     {
         // default speed is 3.5 if larger than 3.5 get thirstier/hungrier faster
-        return speed / 10.0f;
+        return speed / 7.0f;
     }
     
     IEnumerator MatingCooldown()
